@@ -11,11 +11,16 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DataSourceTooltip } from "@/components/data-source-tooltip"
+import { motion } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export function LearningActivity() {
   // 模拟数据
@@ -52,358 +57,434 @@ export function LearningActivity() {
   ]
 
   const contentTypeData = [
-    { name: "课程", value: 45 },
-    { name: "视频", value: 30 },
-    { name: "学习路径", value: 15 },
-    { name: "文章", value: 10 },
+    { name: "课程", value: 45, color: "#0088FE" },
+    { name: "视频", value: 30, color: "#00C49F" },
+    { name: "学习路径", value: 15, color: "#FFBB28" },
+    { name: "文章", value: 10, color: "#FF8042" },
   ]
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
 
   return (
-    <div className="space-y-6">
-      {/* KPI 卡片 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">总学习时长</CardTitle>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="activities[].engagementValue (engagementType: SECONDS_VIEWED)"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpiData.totalLearningTime}</div>
-            <p className="text-xs text-muted-foreground">较上月增长 12%</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">总完成课程数</CardTitle>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="activities[].engagementValue (engagementType: COMPLETIONS)"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpiData.totalCompletions}</div>
-            <p className="text-xs text-muted-foreground">较上月增长 8%</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">活跃学习者数</CardTitle>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="learnerDetails.uniqueUserId"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpiData.activeLearnersCount}</div>
-            <p className="text-xs text-muted-foreground">较上月增长 5%</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">平均完成率</CardTitle>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="activities[].engagementValue (engagementType: PROGRESS_PERCENTAGE)"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpiData.averageCompletionRate}</div>
-            <p className="text-xs text-muted-foreground">较上月增长 3%</p>
-          </CardContent>
-        </Card>
-      </div>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* KPI 卡片 */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              title: "总学习时长",
+              value: kpiData.totalLearningTime,
+              change: "+12%",
+              icon: "fa-solid fa-clock",
+              color: "text-blue-500",
+              endpoint: "/v2/learningActivityReports",
+              fields: "activities[].engagementValue (engagementType: SECONDS_VIEWED)",
+            },
+            {
+              title: "总完成课程数",
+              value: kpiData.totalCompletions,
+              change: "+8%",
+              icon: "fa-solid fa-graduation-cap",
+              color: "text-green-500",
+              endpoint: "/v2/learningActivityReports",
+              fields: "activities[].engagementValue (engagementType: COMPLETIONS)",
+            },
+            {
+              title: "活跃学习者数",
+              value: kpiData.activeLearnersCount,
+              change: "+5%",
+              icon: "fa-solid fa-users",
+              color: "text-purple-500",
+              endpoint: "/v2/learningActivityReports",
+              fields: "learnerDetails.uniqueUserId",
+            },
+            {
+              title: "平均完成率",
+              value: kpiData.averageCompletionRate,
+              change: "+3%",
+              icon: "fa-solid fa-chart-pie",
+              color: "text-amber-500",
+              endpoint: "/v2/learningActivityReports",
+              fields: "activities[].engagementValue (engagementType: PROGRESS_PERCENTAGE)",
+            },
+          ].map((kpi, index) => (
+            <motion.div
+              key={kpi.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <Card className="overflow-hidden">
+                <div className="absolute right-0 top-0 h-16 w-16 translate-x-4 -translate-y-4 rounded-full bg-muted opacity-20"></div>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
+                  <DataSourceTooltip source="Reporting API" endpoint={kpi.endpoint} fields={kpi.fields} />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold">{kpi.value}</div>
+                      <p className="text-xs text-muted-foreground">较上月增长 {kpi.change}</p>
+                    </div>
+                    <div className={`rounded-full bg-muted p-3 ${kpi.color}`}>
+                      <i className={`${kpi.icon}`}></i>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
 
-      {/* 学习活动趋势图 */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>学习活动趋势</CardTitle>
-            <CardDescription>按月查看学习活动趋势</CardDescription>
-          </div>
-          <DataSourceTooltip
-            source="Reporting API"
-            endpoint="/v2/learningActivityReports"
-            fields="activities[].engagementValue, firstEngagedAt/lastEngagedAt"
-          />
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="duration">
-            <TabsList className="mb-4">
-              <TabsTrigger value="duration">学习时长</TabsTrigger>
-              <TabsTrigger value="completions">完成数</TabsTrigger>
-              <TabsTrigger value="active-users">活跃用户</TabsTrigger>
-            </TabsList>
-            <TabsContent value="duration">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="学习时长" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            <TabsContent value="completions">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="完成数" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            <TabsContent value="active-users">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="活跃用户" fill="#ffc658" />
-                </BarChart>
-              </ResponsiveContainer>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        {/* 学习活动趋势图 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>学习活动趋势</CardTitle>
+                <CardDescription>按月查看学习活动趋势</CardDescription>
+              </div>
+              <DataSourceTooltip
+                source="Reporting API"
+                endpoint="/v2/learningActivityReports"
+                fields="activities[].engagementValue, firstEngagedAt/lastEngagedAt"
+              />
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="duration">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="duration">学习时长</TabsTrigger>
+                  <TabsTrigger value="completions">完成数</TabsTrigger>
+                  <TabsTrigger value="active-users">活跃用户</TabsTrigger>
+                </TabsList>
+                <TabsContent value="duration">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="学习时长" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </TabsContent>
+                <TabsContent value="completions">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="完成数" stroke="#82ca9d" activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </TabsContent>
+                <TabsContent value="active-users">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="活跃用户" stroke="#ffc658" activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* 最受欢迎内容 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>最受欢迎内容</CardTitle>
-              <CardDescription>按观看次数排序的热门内容</CardDescription>
-            </div>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="contentDetails.name, contentDetails.contentUrn, activities[]"
-            />
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="views">
-              <TabsList className="mb-4">
-                <TabsTrigger value="views">观看次数</TabsTrigger>
-                <TabsTrigger value="duration">观看时长</TabsTrigger>
-                <TabsTrigger value="completions">完成次数</TabsTrigger>
-              </TabsList>
-              <TabsContent value="views">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* 最受欢迎内容 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+          >
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>最受欢迎内容</CardTitle>
+                  <CardDescription>按观看次数排序的热门内容</CardDescription>
+                </div>
+                <DataSourceTooltip
+                  source="Reporting API"
+                  endpoint="/v2/learningActivityReports"
+                  fields="contentDetails.name, contentDetails.contentUrn, activities[]"
+                />
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="views">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="views">观看次数</TabsTrigger>
+                    <TabsTrigger value="duration">观看时长</TabsTrigger>
+                    <TabsTrigger value="completions">完成次数</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="views">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        layout="vertical"
+                        data={topContentData}
+                        margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="name" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="views" fill="#8884d8" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </TabsContent>
+                  <TabsContent value="duration">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        layout="vertical"
+                        data={topContentData}
+                        margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="name" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="duration" fill="#82ca9d" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </TabsContent>
+                  <TabsContent value="completions">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        layout="vertical"
+                        data={topContentData}
+                        margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="name" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="completions" fill="#ffc658" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* 内容类型参与度 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+          >
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>内容类型参与度</CardTitle>
+                  <CardDescription>按内容类型查看学习时长分布</CardDescription>
+                </div>
+                <DataSourceTooltip
+                  source="Reporting API"
+                  endpoint="/v2/learningActivityReports"
+                  fields="activities[].assetType, engagementValue"
+                />
+              </CardHeader>
+              <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    layout="vertical"
-                    data={topContentData}
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" />
+                  <PieChart>
+                    <Pie
+                      data={contentTypeData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {contentTypeData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="views" fill="#8884d8" />
-                  </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
-              </TabsContent>
-              <TabsContent value="duration">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    layout="vertical"
-                    data={topContentData}
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="duration" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </TabsContent>
-              <TabsContent value="completions">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    layout="vertical"
-                    data={topContentData}
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="completions" fill="#ffc658" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
-        {/* 内容类型参与度 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>内容类型参与度</CardTitle>
-              <CardDescription>按内容类型查看学习时长分布</CardDescription>
-            </div>
-            <DataSourceTooltip
-              source="Reporting API"
-              endpoint="/v2/learningActivityReports"
-              fields="activities[].assetType, engagementValue"
-            />
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={contentTypeData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {contentTypeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        {/* 学习者排行榜 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.6 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>学习者排行榜</CardTitle>
+                <CardDescription>按学习时长排序的前 5 名学习者</CardDescription>
+              </div>
+              <DataSourceTooltip
+                source="Reporting API"
+                endpoint="/v2/learningActivityReports"
+                fields="learnerDetails (name, email, enterpriseGroups), activities[]"
+              />
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">排名</TableHead>
+                    <TableHead>学习者姓名</TableHead>
+                    <TableHead>邮箱</TableHead>
+                    <TableHead>所属群组</TableHead>
+                    <TableHead>总学习时长</TableHead>
+                    <TableHead>总完成课程数</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {learnerLeaderboardData.map((learner) => (
+                    <TableRow key={learner.rank} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">
+                        {learner.rank <= 3 ? (
+                          <span
+                            className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${
+                              learner.rank === 1
+                                ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-700/20 dark:text-yellow-500"
+                                : learner.rank === 2
+                                  ? "bg-gray-100 text-gray-700 dark:bg-gray-700/20 dark:text-gray-400"
+                                  : "bg-amber-100 text-amber-700 dark:bg-amber-700/20 dark:text-amber-500"
+                            }`}
+                          >
+                            {learner.rank}
+                          </span>
+                        ) : (
+                          learner.rank
+                        )}
+                      </TableCell>
+                      <TableCell>{learner.name}</TableCell>
+                      <TableCell>{learner.email}</TableCell>
+                      <TableCell>{learner.group}</TableCell>
+                      <TableCell>{learner.duration}</TableCell>
+                      <TableCell>{learner.completions}</TableCell>
+                    </TableRow>
                   ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* 详细活动日志 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.7 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>详细活动日志</CardTitle>
+                <CardDescription>最近的学习活动记录</CardDescription>
+              </div>
+              <DataSourceTooltip
+                source="Reporting API"
+                endpoint="/v2/learningActivityReports"
+                fields="learnerDetails, contentDetails, activities[]"
+              />
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>时间戳</TableHead>
+                    <TableHead>学习者</TableHead>
+                    <TableHead>内容</TableHead>
+                    <TableHead>内容类型</TableHead>
+                    <TableHead>活动类型</TableHead>
+                    <TableHead>活动值</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="hover:bg-muted/50">
+                    <TableCell>2023-06-15 14:30:22</TableCell>
+                    <TableCell>张三</TableCell>
+                    <TableCell>数据分析基础</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">课程</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">观看</Badge>
+                    </TableCell>
+                    <TableCell>45 分钟</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-muted/50">
+                    <TableCell>2023-06-15 13:15:10</TableCell>
+                    <TableCell>李四</TableCell>
+                    <TableCell>领导力与团队管理</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">学习路径</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="default">完成</Badge>
+                    </TableCell>
+                    <TableCell>100%</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-muted/50">
+                    <TableCell>2023-06-15 11:45:33</TableCell>
+                    <TableCell>王五</TableCell>
+                    <TableCell>项目管理专业技能</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">课程</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">进度</Badge>
+                    </TableCell>
+                    <TableCell>75%</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-muted/50">
+                    <TableCell>2023-06-15 10:20:45</TableCell>
+                    <TableCell>赵六</TableCell>
+                    <TableCell>有效沟通技巧</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">视频</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">观看</Badge>
+                    </TableCell>
+                    <TableCell>15 分钟</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-muted/50">
+                    <TableCell>2023-06-15 09:05:18</TableCell>
+                    <TableCell>钱七</TableCell>
+                    <TableCell>Excel高级应用</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">课程</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">开始</Badge>
+                    </TableCell>
+                    <TableCell>-</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-
-      {/* 学习者排行榜 */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>学习者排行榜</CardTitle>
-            <CardDescription>按学习时长排序的前 5 名学习者</CardDescription>
-          </div>
-          <DataSourceTooltip
-            source="Reporting API"
-            endpoint="/v2/learningActivityReports"
-            fields="learnerDetails (name, email, enterpriseGroups), activities[]"
-          />
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">排名</TableHead>
-                <TableHead>学习者姓名</TableHead>
-                <TableHead>邮箱</TableHead>
-                <TableHead>所属群组</TableHead>
-                <TableHead>总学习时长</TableHead>
-                <TableHead>总完成课程数</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {learnerLeaderboardData.map((learner) => (
-                <TableRow key={learner.rank}>
-                  <TableCell className="font-medium">{learner.rank}</TableCell>
-                  <TableCell>{learner.name}</TableCell>
-                  <TableCell>{learner.email}</TableCell>
-                  <TableCell>{learner.group}</TableCell>
-                  <TableCell>{learner.duration}</TableCell>
-                  <TableCell>{learner.completions}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* 详细活动日志 */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>详细活动日志</CardTitle>
-            <CardDescription>最近的学习活动记录</CardDescription>
-          </div>
-          <DataSourceTooltip
-            source="Reporting API"
-            endpoint="/v2/learningActivityReports"
-            fields="learnerDetails, contentDetails, activities[]"
-          />
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>时间戳</TableHead>
-                <TableHead>学习者</TableHead>
-                <TableHead>内容</TableHead>
-                <TableHead>内容类型</TableHead>
-                <TableHead>活动类型</TableHead>
-                <TableHead>活动值</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>2023-06-15 14:30:22</TableCell>
-                <TableCell>张三</TableCell>
-                <TableCell>数据分析基础</TableCell>
-                <TableCell>课程</TableCell>
-                <TableCell>观看</TableCell>
-                <TableCell>45 分钟</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2023-06-15 13:15:10</TableCell>
-                <TableCell>李四</TableCell>
-                <TableCell>领导力与团队管理</TableCell>
-                <TableCell>学习路径</TableCell>
-                <TableCell>完成</TableCell>
-                <TableCell>100%</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2023-06-15 11:45:33</TableCell>
-                <TableCell>王五</TableCell>
-                <TableCell>项目管理专业技能</TableCell>
-                <TableCell>课程</TableCell>
-                <TableCell>进度</TableCell>
-                <TableCell>75%</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2023-06-15 10:20:45</TableCell>
-                <TableCell>赵六</TableCell>
-                <TableCell>有效沟通技巧</TableCell>
-                <TableCell>视频</TableCell>
-                <TableCell>观看</TableCell>
-                <TableCell>15 分钟</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2023-06-15 09:05:18</TableCell>
-                <TableCell>钱七</TableCell>
-                <TableCell>Excel高级应用</TableCell>
-                <TableCell>课程</TableCell>
-                <TableCell>开始</TableCell>
-                <TableCell>-</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+    </TooltipProvider>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Search, LayoutGrid, List, Filter } from "lucide-react"
+import { Search, LayoutGrid, List, Filter, BookOpen, PlayCircle, GraduationCap } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { DataSourceTooltip } from "@/components/data-source-tooltip"
+import { motion } from "framer-motion"
 
 export function ContentExplorer() {
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
@@ -52,7 +53,7 @@ export function ContentExplorer() {
 
       {/* 桌面端筛选器面板 */}
       <div className="hidden md:block">
-        <div className="rounded-lg border p-4">
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
           <h3 className="mb-4 text-lg font-medium">内容筛选器</h3>
           {renderFilters()}
         </div>
@@ -101,73 +102,110 @@ export function ContentExplorer() {
 
         {viewMode === "grid" ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {contentItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <img
-                  src={item.thumbnail || "/placeholder.svg"}
-                  alt={item.title}
-                  className="h-[120px] w-full object-cover"
-                />
-                <CardHeader className="p-4 pb-0">
-                  <div className="flex items-start justify-between">
-                    <Badge
-                      variant={
-                        item.type === "COURSE" ? "default" : item.type === "LEARNING_PATH" ? "secondary" : "outline"
-                      }
-                    >
-                      {item.type === "COURSE" ? "课程" : item.type === "LEARNING_PATH" ? "学习路径" : "视频"}
-                    </Badge>
-                    <Badge variant="outline">{item.difficulty}</Badge>
+            {contentItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <Card className="group overflow-hidden transition-all duration-300 hover:shadow-md">
+                  <div className="relative">
+                    <img
+                      src={item.thumbnail || "/placeholder.svg"}
+                      alt={item.title}
+                      className="h-[120px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                    <div className="absolute bottom-2 right-2 rounded-full bg-black/70 p-2 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      {item.type === "COURSE" ? (
+                        <BookOpen className="h-4 w-4" />
+                      ) : item.type === "LEARNING_PATH" ? (
+                        <GraduationCap className="h-4 w-4" />
+                      ) : (
+                        <PlayCircle className="h-4 w-4" />
+                      )}
+                    </div>
                   </div>
-                  <CardTitle className="line-clamp-2 text-base">{item.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-2">
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
-                </CardContent>
-                <CardFooter className="flex flex-wrap gap-1 p-4 pt-0">
-                  {item.skills.map((skill) => (
-                    <Badge key={skill} variant="outline" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {contentItems.map((item) => (
-              <div key={item.id} className="flex gap-4 rounded-lg border p-4">
-                <img
-                  src={item.thumbnail || "/placeholder.svg"}
-                  alt={item.title}
-                  className="h-[80px] w-[120px] rounded object-cover"
-                />
-                <div className="flex-1">
-                  <div className="mb-1 flex items-center gap-2">
-                    <Badge
-                      variant={
-                        item.type === "COURSE" ? "default" : item.type === "LEARNING_PATH" ? "secondary" : "outline"
-                      }
-                    >
-                      {item.type === "COURSE" ? "课程" : item.type === "LEARNING_PATH" ? "学习路径" : "视频"}
-                    </Badge>
-                    <Badge variant="outline">{item.difficulty}</Badge>
-                    <span className="text-xs text-muted-foreground">
-                      发布于 {new Date(item.publishedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <h3 className="font-medium">{item.title}</h3>
-                  <p className="line-clamp-1 text-sm text-muted-foreground">{item.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-1">
+                  <CardHeader className="p-4 pb-0">
+                    <div className="flex items-start justify-between">
+                      <Badge
+                        variant={
+                          item.type === "COURSE" ? "default" : item.type === "LEARNING_PATH" ? "secondary" : "outline"
+                        }
+                      >
+                        {item.type === "COURSE" ? "课程" : item.type === "LEARNING_PATH" ? "学习路径" : "视频"}
+                      </Badge>
+                      <Badge variant="outline">{item.difficulty}</Badge>
+                    </div>
+                    <CardTitle className="line-clamp-2 text-base">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-2">
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                  <CardFooter className="flex flex-wrap gap-1 p-4 pt-0">
                     {item.skills.map((skill) => (
                       <Badge key={skill} variant="outline" className="text-xs">
                         {skill}
                       </Badge>
                     ))}
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {contentItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <div className="flex gap-4 rounded-lg border bg-card p-4 shadow-sm transition-all duration-300 hover:shadow-md">
+                  <div className="relative h-[80px] w-[120px] overflow-hidden rounded">
+                    <img
+                      src={item.thumbnail || "/placeholder.svg"}
+                      alt={item.title}
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                    <div className="absolute bottom-1 right-1 rounded-full bg-black/70 p-1 text-white">
+                      {item.type === "COURSE" ? (
+                        <BookOpen className="h-3 w-3" />
+                      ) : item.type === "LEARNING_PATH" ? (
+                        <GraduationCap className="h-3 w-3" />
+                      ) : (
+                        <PlayCircle className="h-3 w-3" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="mb-1 flex items-center gap-2">
+                      <Badge
+                        variant={
+                          item.type === "COURSE" ? "default" : item.type === "LEARNING_PATH" ? "secondary" : "outline"
+                        }
+                      >
+                        {item.type === "COURSE" ? "课程" : item.type === "LEARNING_PATH" ? "学习路径" : "视频"}
+                      </Badge>
+                      <Badge variant="outline">{item.difficulty}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        发布于 {new Date(item.publishedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h3 className="font-medium">{item.title}</h3>
+                    <p className="line-clamp-1 text-sm text-muted-foreground">{item.description}</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {item.skills.map((skill) => (
+                        <Badge key={skill} variant="outline" className="text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
