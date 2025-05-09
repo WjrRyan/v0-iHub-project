@@ -1,5 +1,5 @@
 # iHub
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WjrRyan/v0-iHub-project)
 *Automatically synced with your [v0.dev](https://v0.dev) deployments*
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/wjrryans-projects/v0-i-hub-yigiida49uy)
